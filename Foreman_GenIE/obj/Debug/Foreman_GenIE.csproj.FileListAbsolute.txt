@@ -1,0 +1,10 @@
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.csprojResolveAssemblyReference.cache
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\LMWRCM.Form1.resources
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.Properties.Resources.resources
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.csproj.GenerateResource.Cache
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.csproj.CoreCompileInputs.cache
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\Foreman_GenIE.exe.config
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\Foreman_GenIE.exe
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\Foreman_GenIE.pdb
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.exe
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.pdb
