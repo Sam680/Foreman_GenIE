@@ -7,11 +7,56 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
-namespace LMWRCM
+namespace Foreman_GenIE
 {
     public partial class Form1 : Form
     {
+        
+
+        private List<Machine> load_CSV(string path, string catFilter)
+        {
+            string whole_file = File.ReadAllText(path);
+            whole_file = whole_file.Replace('\n', '\r');
+            string[] lines = whole_file.Split(new char[] { '\r' },
+                StringSplitOptions.RemoveEmptyEntries);
+
+            var Machines = new List<Machine>();
+
+            foreach (string line in lines)
+            {
+                string[] attribute = line.Split(',');
+
+                if (attribute[0] == catFilter)
+                {
+                    Machines.Add(new Machine
+                    {
+                        Name = attribute[1],
+                        Catagory = attribute[0],
+                        Role = attribute[2],
+                        Action = "n/a"
+
+                    });
+                }
+                else if (catFilter == "All")
+                {
+                    if (attribute[1] != "Machine")
+                    {
+                        Machines.Add(new Machine
+                        {
+                            Name = attribute[1],
+                            Catagory = attribute[0],
+                            Role = attribute[2],
+                            Action = "n/a"
+
+                        });
+                    }
+                }
+            }
+            return Machines;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -29,29 +74,38 @@ namespace LMWRCM
         }
         private void envirCb_TextChanged(object sender, EventArgs e)
         {
-            if(envirCb.Text == "GENNFT" || envirCb.Text == "GENPREP" || envirCb.Text == "GENPROD" || envirCb.Text == "GENSYS")
+            filterCb.Text = "";
+            if (envirCb.Text == "GENNFT" || envirCb.Text == "GENPREP" || envirCb.Text == "GENPROD" || envirCb.Text == "GENSYS")
             {
                 filterCb.Enabled = true;
-                if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework") {
+                filterCb.Text = "All";
+
+                if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework" || filterCb.Text == "Publication") {
                     passTBar.Enabled = true;
                     failTBar.Enabled = true;
-                    rebuiltBtn.Enabled = true;
-                    puppetBtn.Enabled = true;
+                    submitBtn.Enabled = true;
+                    removeBtn.Enabled = true;
+                    allBtn.Enabled = true;
+                    clearBtn.Enabled = true;
+                    actionCb.Enabled = true;
+                    runBtn.Enabled = true;
 
                     passLbl.Text = "Minimum Passes: " + passTBar.Value;
-                    failLbl.Text = "Maximum Fails: " + failTBar.Value;
-
-                    if (filterCb.Text == "All")
-                    {
-
-                    }
+                    failLbl.Text = "Maximum Fails: " + failTBar.Value;  
                 }
                 else
                 {
                     passTBar.Enabled = false;
                     failTBar.Enabled = false;
-                    rebuiltBtn.Enabled = false;
-                    puppetBtn.Enabled = false;
+                    submitBtn.Enabled = false;
+                    removeBtn.Enabled = false;
+                    allBtn.Enabled = false;
+                    clearBtn.Enabled = false;
+                    actionCb.Enabled = false;
+                    runBtn.Enabled = false;
+
+                    selectionList.Clear();
+                    filterCb.Text = "";
                 }
             }
             else
@@ -59,30 +113,88 @@ namespace LMWRCM
                 filterCb.Enabled = false;
                 passTBar.Enabled = false;
                 failTBar.Enabled = false;
-                rebuiltBtn.Enabled = false;
-                puppetBtn.Enabled = false;
+                submitBtn.Enabled = false;
+                removeBtn.Enabled = false;
+                allBtn.Enabled = false;
+                clearBtn.Enabled = false;
+                actionCb.Enabled = false;
+                runBtn.Enabled = false;
+
+                selectionList.Clear();
+                filterCb.Text = "";
             }
+            selectionList.Focus();
         }
 
         private void filterCb_TextChanged(object sender, EventArgs e)
         {
-            if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework")
+            if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework" || filterCb.Text == "Publication")
             {
                 passTBar.Enabled = true;
                 failTBar.Enabled = true;
-                rebuiltBtn.Enabled = true;
-                puppetBtn.Enabled = true;
+                submitBtn.Enabled = true;
+                removeBtn.Enabled = true;
+                allBtn.Enabled = true;
+                clearBtn.Enabled = true;
+                actionCb.Enabled = true;
+                runBtn.Enabled = true;
+
+                selectionList.Clear();
 
                 passLbl.Text = "Minimum Passes: " + passTBar.Value;
                 failLbl.Text = "Maximum Fails: " + failTBar.Value;
+
+                List<Machine> filteredList = new List<Machine>();
+
+                if (envirCb.Text == "GENNFT")
+                {
+                    filteredList = load_CSV(@"C:\Users\stravers\source\repos\Foreman_GenIE\GENNFT.csv", filterCb.Text);
+                }
+                else if (envirCb.Text == "GENPREP")
+                {
+                    filteredList = load_CSV(@"C:\Users\stravers\source\repos\Foreman_GenIE\GENPREP.csv", filterCb.Text);
+                }
+                else if (envirCb.Text == "GENPROD")
+                {
+                    filteredList = load_CSV(@"C:\Users\stravers\source\repos\Foreman_GenIE\GENPROD.csv", filterCb.Text);
+                }
+                else if (envirCb.Text == "GENSYS")
+                {
+                    filteredList = load_CSV(@"C:\Users\stravers\source\repos\Foreman_GenIE\GENSYS.csv", filterCb.Text);
+                }
+
+                selectionList.View = View.Details;
+
+                selectionList.Columns.Add("");
+                selectionList.Columns.Add("Name");
+                selectionList.Columns.Add("Role");
+
+                selectionList.CheckBoxes = true;
+
+
+                foreach (Machine item in filteredList)
+                {
+                    selectionList.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Role, item.Action }));
+                }
+
+                selectionList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                selectionList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
             }
+            
             else
             {
                 passTBar.Enabled = false;
                 failTBar.Enabled = false;
-                rebuiltBtn.Enabled = false;
-                puppetBtn.Enabled = false;
+                submitBtn.Enabled = false;
+                removeBtn.Enabled = false;
+                allBtn.Enabled = false;
+                clearBtn.Enabled = false;
+                actionCb.Enabled = false;
+
+                selectionList.Clear();
             }
+            selectionList.Focus();
         }
 
         private void passTBar_Scroll(object sender, EventArgs e)
@@ -102,6 +214,189 @@ namespace LMWRCM
 
         private void button1_Click(object sender, EventArgs e)
         {
+            int numOfJobs = 0;
+            foreach (ListViewItem job in listView1.Items)
+            {              
+                if (job.Checked == true)
+                {
+                    numOfJobs++;
+                    job.Remove();
+                }
+            }
+            if (numOfJobs == 0)
+            {
+                MessageBox.Show("No jobs selected to be removed.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        private void submitBtn_Click(object sender, EventArgs e)
+        {
+
+            if (actionCb.Text != "")
+            {
+                List<Machine> jobList = new List<Machine>();
+                int jobListSize = 0;
+
+                foreach (ListViewItem item in selectionList.Items)
+                {
+                    bool duplicate = false;
+                    if (item.Checked == true)
+                    {
+                        foreach (ListViewItem job in listView1.Items)
+                        {
+                            if (job.SubItems[1].Text == item.SubItems[1].Text)
+                            {
+                                DialogResult result = MessageBox.Show(item.SubItems[1].Text + " already in job list. Replace old job with new one?", "Warning",
+                                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                                if (result == DialogResult.Yes)
+                                {
+                                    duplicate = false;
+                                    job.Remove();
+                                }
+                                else if (result == DialogResult.No)
+                                {
+                                    duplicate = true;
+                                }
+                                else if (result == DialogResult.Cancel)
+                                {
+                                    duplicate = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (item.Checked == true && duplicate == false)
+                    {                    
+                        jobList.Add(new Machine
+                        {
+                            Name = item.SubItems[1].Text,
+                            Catagory = envirCb.Text,
+                            Role = item.SubItems[2].Text,
+                            Action = actionCb.Text,
+                            MinPass = passTBar.Value,
+                            MaxFail = failTBar.Value,
+                            Finished = false
+                        });
+
+                        jobListSize++;
+                    }
+                }
+
+                int n = 0;
+                foreach (ListViewItem item in listView1.Items)
+                {
+                    n++;
+                }
+
+                if (n == 0)
+                {
+                    listView1.Clear();
+                    listView1.View = View.Details;
+
+                    listView1.Columns.Add("");
+                    listView1.Columns.Add("Name");
+                    listView1.Columns.Add("Environment");
+                    listView1.Columns.Add("Role");
+                    listView1.Columns.Add("Action");
+                    listView1.Columns.Add("Pass");
+                    listView1.Columns.Add("Fail");
+
+                    listView1.CheckBoxes = true;
+                }
+
+                if (jobListSize > 0)
+                {
+                    foreach (Machine item in jobList)
+                    {
+                        listView1.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Catagory, item.Role, item.Action, item.MinPass.ToString(), item.MaxFail.ToString() }));
+                    }
+
+                    listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                    listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+                }
+                else
+                {
+                    MessageBox.Show("No machine(s) selected.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            else
+            {
+                MessageBox.Show("'Select Action' field is empty.\nChoose an action to perform on the machine(s) before trying to submit.", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void puppetBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectionList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tableLayoutPanel7_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tableLayoutPanel5_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void allBtn_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in selectionList.Items)
+            {
+                item.Checked = true;
+            }
+        }
+
+        private void clearBtn_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in selectionList.Items)
+            {
+                item.Checked = false;
+            }
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in listView1.Items)
+            {
+                item.Checked = true;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in listView1.Items)
+            {
+                item.Checked = false;
+            }
+        }
+
+        private void runBtn_Click(object sender, EventArgs e)
+        {
+
+            // Create a new instance of the Form2 class
+            Form1 settingsForm = new Form1();
+
+            // Show the settings form
+            settingsForm.Show();
 
         }
     }
