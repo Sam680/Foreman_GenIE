@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -61,6 +62,7 @@
             this.clearBtn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.runBtn = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.failTBar)).BeginInit();
@@ -76,10 +78,14 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
             // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetDouble;
             this.tableLayoutPanel1.ColumnCount = 4;
@@ -146,28 +152,31 @@
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.failTBar, 0, 5);
-            this.tableLayoutPanel2.Controls.Add(this.passTBar, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.submitBtn, 0, 6);
-            this.tableLayoutPanel2.Controls.Add(this.passLbl, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.failLbl, 0, 4);
-            this.tableLayoutPanel2.Controls.Add(this.actionCb, 0, 1);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(336, 169);
+            this.tableLayoutPanel2.Controls.Add(this.submitBtn, 0, 7);
+            this.tableLayoutPanel2.Controls.Add(this.failTBar, 0, 6);
+            this.tableLayoutPanel2.Controls.Add(this.failLbl, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.passTBar, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.label1, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.passLbl, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.actionCb, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.pictureBox1, 0, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(336, 66);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 7;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 19F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
+            this.tableLayoutPanel2.RowCount = 8;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 138F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 19F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 18F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 47F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(112, 233);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(112, 364);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
             // label1
@@ -175,7 +184,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 6);
+            this.label1.Location = new System.Drawing.Point(3, 149);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(106, 13);
             this.label1.TabIndex = 10;
@@ -184,10 +193,10 @@
             // failTBar
             // 
             this.failTBar.Enabled = false;
-            this.failTBar.Location = new System.Drawing.Point(3, 140);
+            this.failTBar.Location = new System.Drawing.Point(3, 286);
             this.failTBar.Minimum = 1;
             this.failTBar.Name = "failTBar";
-            this.failTBar.Size = new System.Drawing.Size(104, 43);
+            this.failTBar.Size = new System.Drawing.Size(104, 37);
             this.failTBar.TabIndex = 9;
             this.failTBar.Value = 5;
             this.failTBar.Scroll += new System.EventHandler(this.failTBar_Scroll);
@@ -195,10 +204,10 @@
             // passTBar
             // 
             this.passTBar.Enabled = false;
-            this.passTBar.Location = new System.Drawing.Point(3, 76);
+            this.passTBar.Location = new System.Drawing.Point(3, 223);
             this.passTBar.Minimum = 1;
             this.passTBar.Name = "passTBar";
-            this.passTBar.Size = new System.Drawing.Size(104, 38);
+            this.passTBar.Size = new System.Drawing.Size(104, 39);
             this.passTBar.TabIndex = 1;
             this.passTBar.Value = 2;
             this.passTBar.Scroll += new System.EventHandler(this.passTBar_Scroll);
@@ -209,9 +218,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.submitBtn.Enabled = false;
-            this.submitBtn.Location = new System.Drawing.Point(3, 189);
+            this.submitBtn.Location = new System.Drawing.Point(3, 329);
             this.submitBtn.Name = "submitBtn";
-            this.submitBtn.Size = new System.Drawing.Size(106, 41);
+            this.submitBtn.Size = new System.Drawing.Size(106, 32);
             this.submitBtn.TabIndex = 3;
             this.submitBtn.Text = "Submit";
             this.submitBtn.UseVisualStyleBackColor = true;
@@ -222,7 +231,7 @@
             this.passLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.passLbl.AutoSize = true;
-            this.passLbl.Location = new System.Drawing.Point(3, 60);
+            this.passLbl.Location = new System.Drawing.Point(3, 207);
             this.passLbl.Name = "passLbl";
             this.passLbl.Size = new System.Drawing.Size(106, 13);
             this.passLbl.TabIndex = 7;
@@ -233,7 +242,7 @@
             this.failLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.failLbl.AutoSize = true;
-            this.failLbl.Location = new System.Drawing.Point(3, 124);
+            this.failLbl.Location = new System.Drawing.Point(3, 270);
             this.failLbl.Name = "failLbl";
             this.failLbl.Size = new System.Drawing.Size(106, 13);
             this.failLbl.TabIndex = 8;
@@ -249,7 +258,7 @@
             "Deploy Puppet",
             "Rebuild",
             "Restart"});
-            this.actionCb.Location = new System.Drawing.Point(3, 22);
+            this.actionCb.Location = new System.Drawing.Point(3, 165);
             this.actionCb.Name = "actionCb";
             this.actionCb.Size = new System.Drawing.Size(106, 21);
             this.actionCb.TabIndex = 2;
@@ -403,7 +412,7 @@
             // 
             this.button1.Location = new System.Drawing.Point(3, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(73, 23);
+            this.button1.Size = new System.Drawing.Size(73, 29);
             this.button1.TabIndex = 0;
             this.button1.Text = "Check All";
             this.button1.UseVisualStyleBackColor = true;
@@ -413,7 +422,7 @@
             // 
             this.button2.Location = new System.Drawing.Point(82, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(75, 29);
             this.button2.TabIndex = 1;
             this.button2.Text = "Uncheck All";
             this.button2.UseVisualStyleBackColor = true;
@@ -495,7 +504,7 @@
             // 
             this.allBtn.Location = new System.Drawing.Point(3, 3);
             this.allBtn.Name = "allBtn";
-            this.allBtn.Size = new System.Drawing.Size(67, 23);
+            this.allBtn.Size = new System.Drawing.Size(67, 28);
             this.allBtn.TabIndex = 0;
             this.allBtn.Text = "Check All";
             this.allBtn.UseVisualStyleBackColor = true;
@@ -505,7 +514,7 @@
             // 
             this.clearBtn.Location = new System.Drawing.Point(76, 3);
             this.clearBtn.Name = "clearBtn";
-            this.clearBtn.Size = new System.Drawing.Size(75, 23);
+            this.clearBtn.Size = new System.Drawing.Size(75, 28);
             this.clearBtn.TabIndex = 1;
             this.clearBtn.Text = "Uncheck All";
             this.clearBtn.UseVisualStyleBackColor = true;
@@ -544,6 +553,21 @@
             this.runBtn.UseVisualStyleBackColor = true;
             this.runBtn.Click += new System.EventHandler(this.runBtn_Click);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.ImageLocation = "";
+            this.pictureBox1.InitialImage = null;
+            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(106, 132);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 11;
+            this.pictureBox1.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -553,6 +577,7 @@
             this.ClientSize = new System.Drawing.Size(916, 534);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "The LEAN MEAN WORK REDUCING BUILDING MACHINE";
             this.Load += new System.EventHandler(this.Form1_Load_1);
@@ -575,6 +600,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -614,6 +640,7 @@
         private System.Windows.Forms.ComboBox actionCb;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button runBtn;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

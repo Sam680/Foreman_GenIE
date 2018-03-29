@@ -14,7 +14,7 @@ namespace Foreman_GenIE
     public partial class Form1 : Form
     {
         
-
+        public static List<Machine> jobList = new List<Machine>();
         private List<Machine> load_CSV(string path, string catFilter)
         {
             string whole_file = File.ReadAllText(path);
@@ -234,7 +234,7 @@ namespace Foreman_GenIE
 
             if (actionCb.Text != "")
             {
-                List<Machine> jobList = new List<Machine>();
+                jobList = new List<Machine>();
                 int jobListSize = 0;
 
                 foreach (ListViewItem item in selectionList.Items)
@@ -266,7 +266,7 @@ namespace Foreman_GenIE
                     }
                     
                     if (item.Checked == true && duplicate == false)
-                    {                    
+                    {
                         jobList.Add(new Machine
                         {
                             Name = item.SubItems[1].Text,
@@ -275,7 +275,8 @@ namespace Foreman_GenIE
                             Action = actionCb.Text,
                             MinPass = passTBar.Value,
                             MaxFail = failTBar.Value,
-                            Finished = false
+                            Passes = 0,
+                            Fails = 0
                         });
 
                         jobListSize++;
@@ -391,12 +392,42 @@ namespace Foreman_GenIE
 
         private void runBtn_Click(object sender, EventArgs e)
         {
+            jobList = new List<Machine>();
 
-            // Create a new instance of the Form2 class
-            Form1 settingsForm = new Form1();
+            foreach (ListViewItem item in listView1.Items)
+            {
+                if (item.Checked == true)
+                {
+                    jobList.Add(new Machine
+                    {
+                        Name = item.SubItems[1].Text,
+                        Catagory = item.SubItems[2].Text,
+                        Role = item.SubItems[3].Text,
+                        Action = item.SubItems[4].Text,
+                        MinPass = Convert.ToInt32(item.SubItems[5].Text),
+                        MaxFail = Convert.ToInt32(item.SubItems[6].Text),
+                        Passes = 0,
+                        Fails = 0
+                    });
+                }
+            }
 
-            // Show the settings form
-            settingsForm.Show();
+            int n = 0;
+            foreach (Machine item in jobList)
+            {
+                n++;
+            }
+           
+            if (n > 0)
+            {
+                Form2 settingsForm = new Form2();
+                settingsForm.Show();
+            }
+            else
+            {
+                MessageBox.Show("No machine(s) to run.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
         }
     }

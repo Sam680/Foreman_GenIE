@@ -14,7 +14,8 @@ namespace Foreman_GenIE
         public string Action { get; set; }
         public int MaxFail { get; set; }
         public int MinPass { get; set; }
-        public bool Finished { get; set; }
+        public int Passes { get; set; }
+        public int Fails { get; set; }
 
     }
 }

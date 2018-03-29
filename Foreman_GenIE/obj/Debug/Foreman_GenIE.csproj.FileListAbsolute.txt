@@ -8,3 +8,8 @@ C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\Foreman_Gen
 C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.exe
 C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.pdb
 C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.Form1.resources
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\obj\Debug\Foreman_GenIE.Form2.resources
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\WebDriver.dll
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\WebDriver.Support.dll
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\WebDriver.xml
+C:\Users\stravers\source\repos\Foreman_GenIE\Foreman_GenIE\bin\Debug\WebDriver.Support.xml
