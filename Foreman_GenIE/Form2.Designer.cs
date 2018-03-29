@@ -51,7 +51,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressView.Location = new System.Drawing.Point(6, 47);
             this.progressView.Name = "progressView";
-            this.progressView.Size = new System.Drawing.Size(381, 374);
+            this.progressView.Size = new System.Drawing.Size(396, 374);
             this.progressView.TabIndex = 0;
             this.progressView.UseCompatibleStateImageBehavior = false;
             // 
@@ -63,7 +63,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(381, 38);
+            this.label1.Size = new System.Drawing.Size(396, 38);
             this.label1.TabIndex = 3;
             this.label1.Text = "IN PROGRESS";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -76,7 +76,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(6, 427);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(381, 33);
+            this.label2.Size = new System.Drawing.Size(396, 33);
             this.label2.TabIndex = 4;
             this.label2.Text = "PASSED";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -87,9 +87,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(396, 427);
+            this.label3.Location = new System.Drawing.Point(411, 427);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(419, 33);
+            this.label3.Size = new System.Drawing.Size(404, 33);
             this.label3.TabIndex = 5;
             this.label3.Text = "FAILED";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -102,8 +102,8 @@
             this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetDouble;
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 47.67726F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 52.32274F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.511F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.489F));
             this.tableLayoutPanel1.Controls.Add(this.failView, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.passView, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.label4, 1, 0);
@@ -128,9 +128,9 @@
             // 
             this.failView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.failView.Location = new System.Drawing.Point(396, 466);
+            this.failView.Location = new System.Drawing.Point(411, 466);
             this.failView.Name = "failView";
-            this.failView.Size = new System.Drawing.Size(399, 307);
+            this.failView.Size = new System.Drawing.Size(404, 307);
             this.failView.TabIndex = 9;
             this.failView.UseCompatibleStateImageBehavior = false;
             // 
@@ -140,7 +140,7 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.passView.Location = new System.Drawing.Point(6, 466);
             this.passView.Name = "passView";
-            this.passView.Size = new System.Drawing.Size(381, 307);
+            this.passView.Size = new System.Drawing.Size(396, 307);
             this.passView.TabIndex = 8;
             this.passView.UseCompatibleStateImageBehavior = false;
             // 
@@ -150,9 +150,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(396, 3);
+            this.label4.Location = new System.Drawing.Point(411, 3);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(419, 38);
+            this.label4.Size = new System.Drawing.Size(404, 38);
             this.label4.TabIndex = 6;
             this.label4.Text = "RUNNING LOG";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -167,9 +167,9 @@
             this.logBox.ForeColor = System.Drawing.Color.White;
             this.logBox.FormattingEnabled = true;
             this.logBox.ItemHeight = 15;
-            this.logBox.Location = new System.Drawing.Point(396, 47);
+            this.logBox.Location = new System.Drawing.Point(411, 47);
             this.logBox.Name = "logBox";
-            this.logBox.Size = new System.Drawing.Size(419, 364);
+            this.logBox.Size = new System.Drawing.Size(404, 364);
             this.logBox.TabIndex = 7;
             // 
             // tableLayoutPanel2

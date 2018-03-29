@@ -10,12 +10,15 @@ using System.Windows.Forms;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Foreman_GenIE
 {
     public partial class Form2 : Form
     {
         IWebDriver driver;
+        string username;
+        string password;
         public Form2()
         {
             InitializeComponent();
@@ -64,9 +67,10 @@ namespace Foreman_GenIE
         private void toggleBtn_Click(object sender, EventArgs e)
         {
             if (toggleBtn.Text == "Run")
-            {               
-                logBox.Items.Add("TASK: Begin.");
-                login();
+            {
+                update_Log("TASK:\tBegin.");
+                Thread logon = new Thread(login);
+                logon.Start();
                 toggleBtn.Text = "Cancel";
             }
             else if(toggleBtn.Text == "Cancel")
@@ -86,7 +90,7 @@ namespace Foreman_GenIE
                 }
                 catch { }
 
-                logBox.Items.Add("TASK: Stopped.");
+                logBox.Items.Add("TASK:\tStopped.");
                 logBox.Items.Add("");
                 toggleBtn.Text = "Run";
             }
@@ -95,26 +99,84 @@ namespace Foreman_GenIE
 
         private void login()
         {
-            logBox.Items.Add("TASK: Starting Webdriver...");
+            update_Log("TASK:\tStarting Webdriver...");
             try
             {
+                //start webdriver
                 driver = new FirefoxDriver();
                 driver.Navigate().GoToUrl("https://foreman.ordsvy.gov.uk/users/login");
-                logBox.Items.Add("SUCCESS: Webdriver started.");
+                update_Log("SUCCESS:\tWebdriver started.");
+
+                //login using credentials
+                bool logon_successfull = false;
+                IWebElement username_field = driver.FindElement(By.XPath(@"//*[@id='login_login']"));
+                IWebElement password_field = driver.FindElement(By.XPath(@"//*[@id='login_password']"));
+
+                update_Log("TASK:\tWaiting for successful Login...");
+                while (logon_successfull == false)
+                {
+                    try
+                    {
+                        IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
+                        logon_successfull = true;
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        
+                    }
+                    catch (WebDriverException)
+                    {
+                        update_Log("ERROR:\tLost Webdriver.");
+                        kill_webdriver();
+                        update_Log("TASK:\tRestarting Webdriver.");
+                        Thread logon = new Thread(login);
+                        logon.Start();
+                        return;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        update_Log("ERROR:\tLost Webdriver.");
+                        kill_webdriver();
+                        update_Log("TASK:\tRestarting Webdriver.");
+                        Thread logon = new Thread(login);
+                        logon.Start();
+                        return;
+                    }
+                    
+                }
+                update_Log("SUCCESS:\tLogin successful.");
+
             }
             catch
             {
-                logBox.Items.Add("ERROR: Unable to initiate Webdriver.\n");
+                update_Log("ERROR:\tUnable to initiate Webdriver.\n");
             }
         }
 
         private void closeBtn_Click(object sender, EventArgs e)
         {
+            kill_webdriver();
+
+            this.Close();
+        }
+
+        private void update_Log(string text)
+        {            
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<string>(update_Log), new object[] { text });
+                return;
+            }
+            logBox.Items.Add(text);
+        }
+
+        private void kill_webdriver()
+        {
             try
             {
                 driver.Close();
             }
-            catch {  }
+            catch { }
 
             try
             {
@@ -124,8 +186,11 @@ namespace Foreman_GenIE
                 }
             }
             catch { }
+        }
 
-            this.Close();
+        private void Main_Thread()
+        {
+
         }
     }
 }
