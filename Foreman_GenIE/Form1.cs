@@ -13,11 +13,25 @@ namespace Foreman_GenIE
 {
     public partial class Form1 : Form
     {
-        
         public static List<Machine> jobList = new List<Machine>();
         private List<Machine> load_CSV(string path, string catFilter)
         {
-            string whole_file = File.ReadAllText(path);
+            string whole_file = "";
+            try
+            {
+                whole_file = File.ReadAllText(path);
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("Unable to find '" + path + "'.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("'" + path + "' is being used by another process.\nPlease close all instances.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            }
             whole_file = whole_file.Replace('\n', '\r');
             string[] lines = whole_file.Split(new char[] { '\r' },
                 StringSplitOptions.RemoveEmptyEntries);
@@ -33,7 +47,7 @@ namespace Foreman_GenIE
                     Machines.Add(new Machine
                     {
                         Name = attribute[1],
-                        Catagory = attribute[0],
+                        Environment = attribute[0],
                         Role = attribute[2],
                         Action = "n/a"
 
@@ -46,7 +60,7 @@ namespace Foreman_GenIE
                         Machines.Add(new Machine
                         {
                             Name = attribute[1],
-                            Catagory = attribute[0],
+                            Environment = attribute[0],
                             Role = attribute[2],
                             Action = "n/a"
 
@@ -232,7 +246,7 @@ namespace Foreman_GenIE
         private void submitBtn_Click(object sender, EventArgs e)
         {
 
-            if (actionCb.Text != "")
+            if (actionCb.Text == "Rebuild" || actionCb.Text == "Deploy Puppet" || actionCb.Text == "Restart")
             {
                 jobList = new List<Machine>();
                 int jobListSize = 0;
@@ -270,7 +284,7 @@ namespace Foreman_GenIE
                         jobList.Add(new Machine
                         {
                             Name = item.SubItems[1].Text,
-                            Catagory = envirCb.Text,
+                            Environment = envirCb.Text,
                             Role = item.SubItems[2].Text,
                             Action = actionCb.Text,
                             MinPass = passTBar.Value,
@@ -309,7 +323,7 @@ namespace Foreman_GenIE
                 {
                     foreach (Machine item in jobList)
                     {
-                        listView1.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Catagory, item.Role, item.Action, item.MinPass.ToString(), item.MaxFail.ToString() }));
+                        listView1.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Environment, item.Role, item.Action, item.MinPass.ToString(), item.MaxFail.ToString() }));
                     }
 
                     listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -323,7 +337,7 @@ namespace Foreman_GenIE
             }
             else
             {
-                MessageBox.Show("'Select Action' field is empty.\nChoose an action to perform on the machine(s) before trying to submit.", "Warning",
+                MessageBox.Show("'Select Action' field is invalid.\nChoose an action to perform on the machine(s) before trying to submit.", "Warning",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -401,9 +415,10 @@ namespace Foreman_GenIE
                     jobList.Add(new Machine
                     {
                         Name = item.SubItems[1].Text,
-                        Catagory = item.SubItems[2].Text,
+                        Environment = item.SubItems[2].Text,
                         Role = item.SubItems[3].Text,
                         Action = item.SubItems[4].Text,
+                        Power_State = "?",
                         MinPass = Convert.ToInt32(item.SubItems[5].Text),
                         MaxFail = Convert.ToInt32(item.SubItems[6].Text),
                         Passes = 0,
