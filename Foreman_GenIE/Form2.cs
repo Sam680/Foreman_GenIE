@@ -16,7 +16,9 @@ namespace Foreman_GenIE
 {
     public partial class Form2 : Form
     {
+
         IWebDriver driver;
+        bool login_successfull = false;
         string username;
         string password;
         bool cancelled = true;
@@ -41,15 +43,15 @@ namespace Foreman_GenIE
             progressView.Columns.Add("Role");
             progressView.Columns.Add("Action");
             progressView.Columns.Add("State");
-            progressView.Columns.Add("Passes");
+            progressView.Columns.Add("Reports");
             progressView.Columns.Add("Fails");
+            progressView.Columns.Add("Skipped");
 
             jobList.Clear();
             foreach (Machine item in Form1.jobList)
             {
-                string passes = item.Passes.ToString() + "/" + item.MinPass.ToString();
                 string fails = item.Fails.ToString() + "/" + item.MaxFail.ToString();
-                progressView.Items.Add(new ListViewItem(new string[] { item.Name, item.Environment, item.Role, item.Action, item.Power_State, passes, fails }));
+                progressView.Items.Add(new ListViewItem(new string[] { item.Name, item.Environment, item.Role, item.Action, item.Power_State, item.Reports.ToString(), fails, item.Skipped.ToString() }));
                 jobList.Add(item);
             }
 
@@ -80,21 +82,22 @@ namespace Foreman_GenIE
             if (toggleBtn.Text == "Run")
             {
                 Thread MainThread = new Thread(Main_Thread);
+                MainThread.IsBackground = true;
                 MainThread.Start();
                 toggleBtn.Text = "Cancel";
-                cancelled  = false;
-                
+                cancelled = false;
+
             }
-            else if(toggleBtn.Text == "Cancel")
+            else if (toggleBtn.Text == "Cancel")
             {
-                cancelled  = true;
+                cancelled = true;
                 kill_webdriver();
 
                 logBox.Items.Add("TASK:\tStopped.");
                 logBox.Items.Add("");
                 toggleBtn.Text = "Run";
             }
-            
+
         }
 
         private void Main_Thread()
@@ -110,7 +113,7 @@ namespace Foreman_GenIE
             {
                 if (toggleBtn.Text == "Run")
                 {
-                    cancelled  = true;
+                    cancelled = true;
                 }
                 else
                 {
@@ -120,175 +123,293 @@ namespace Foreman_GenIE
 
             //main loop
             n = num_of_jobs();
-            while (n != 0 && cancelled  == false)
+            while (n != 0 && cancelled == false)
             {
                 foreach (Machine item in jobList)
                 {
-                    if (cancelled  == true)
-                    {
-                        break;
-                    }
-                    //open foreman page
-                    string url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + ".ordsvy.gov.uk";
+                    Machine backup = item;
                     try
                     {
-                        driver.Navigate().GoToUrl(url);
-
-                        int count = 0;
-                        IWebElement username_field = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
-                        while (username_field.Text.Contains("Power") == false)
+                        if (cancelled == true)
                         {
-                            count++;
-                            if (count > 80)
-                            {
-                                update_Log("ERROR:\tTimed out " + item.Name + " Foreman page.");
-                                update_Log("Task:\tSkipped.");
-                                break;
-                            }
-                            Thread.Sleep(250);
-                            username_field = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
+                            break;
                         }
-
-                    }
-                    catch
-                    {
-                        if (cancelled  == false)
-                        { 
-                            try
-                            {
-                                String host_not_found = driver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div/strong")).Text;
-                                if (host_not_found == "Host not found")
-                                {
-                                    update_Log("ERROR:\t" + item.Name + " Foreman page not found.");
-                                    failedList.Add(item);
-                                    failView.Items.Add(new ListViewItem(new string[] { item.Name, item.Environment, item.Role, item.Action, item.Fails.ToString(), "page not found"}));
-                                    failView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-                                    failView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-
-                                    for (int x = 0; x < progressView.Items.Count; x++)
-                                    {
-                                        if (progressView.Items[x].SubItems[0].Text == item.Name)
-                                        {
-                                            progressView.Items[x].Remove();
-                                        }
-                                    }
-                                    jobList.Remove(item);
-                                    update_Log("TASK:\tMoved " + item.Name + " to Failed.");
-                                    break;
-                                }
-
-                            }
-                            catch
-                            {
-                                Thread.Sleep(1000);
-                            }
-                            
-                            
-                        }
-                    }
-
-                    //check power state
-                    int i = 0;
-                    while (i < 100)     //wait up to 25 seconds
-                    {
-                        i++;
+                        //open foreman page
+                        string url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + ".ordsvy.gov.uk";
                         try
                         {
-                            IWebElement pwr_btn_state = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
-                            if (pwr_btn_state.Text == "Power Off")
+                            driver.Navigate().GoToUrl(url);
+
+                            int count = 0;
+                            IWebElement power_button = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
+                            while (power_button.Text.Contains("Power") == false)
                             {
-                                item.Power_State = "ON";
-                                i = 100;
+                                count++;
+                                if (count > 80)
+                                {
+                                    update_Log("ERROR:\t" + item.Name + " Foreman page timed out.");
+                                    update_Log("Task:\t" + item.Name + " skipped.");
+                                    break;
+                                }
+                                Thread.Sleep(250);
+                                power_button = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
                             }
-                            else if (pwr_btn_state.Text == "Power On")
+
+                        }
+                        catch (NoSuchElementException)
+                        {
+                            if (cancelled == false)
                             {
-                                item.Power_State = "OFF";
-                                i = 100;
+                                try
+                                {
+                                    string host_not_found = driver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div/strong")).Text;
+                                    if (host_not_found == "Host not found")
+                                    {
+                                        item.Failure = "Host not found";
+                                        Update_Lists(item);
+                                        break;
+                                    }
+
+                                }
+                                catch
+                                {
+                                    Thread.Sleep(1000);
+                                }
+
+
                             }
-                            else if (i == 100)
+                        }
+
+                        //check power state
+                        int i = 0;
+                        while (i < 100)     //wait up to 25 seconds
+                        {
+                            i++;
+                            try
                             {
-                                update_Log("ERROR:\tTimed out loading power state for " + item.Name + ".");
+                                IWebElement pwr_btn_state = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
+                                if (pwr_btn_state.Text == "Power Off")
+                                {
+                                    item.Power_State = "ON";
+                                    i = 100;
+                                }
+                                else if (pwr_btn_state.Text == "Power On")
+                                {
+                                    item.Power_State = "OFF";
+                                    i = 100;
+                                }
+                                else if (i == 100)
+                                {
+                                    update_Log("ERROR:\tTimed out loading power state for " + item.Name + ".");
+                                }
+                                else
+                                {
+                                    Thread.Sleep(250);
+                                }
                             }
-                            else
+                            catch (NoSuchElementException)
                             {
+                                if (cancelled == true)
+                                {
+                                    break;
+                                }
+                                else if (i == 100)
+                                {
+                                    update_Log("ERROR:\tUnable to find power button element for " + item.Name + ".");
+                                    break;
+                                }
                                 Thread.Sleep(250);
                             }
                         }
-                        catch
+
+                        //check recent reports
+                        int total_reports = 0;
+                        url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + @".ordsvy.gov.uk/config_reports";
+                        driver.Navigate().GoToUrl(url);
+
+                        //more than 30 reports?
+                        try
                         {
-                            if (cancelled  == true)
+                            IWebElement first_page_num = driver.FindElement(By.XPath(@"/html/body/div[3]/div/div[3]/div/div/b"));
+                            string[] report_text = first_page_num.Text.Split(' ');
+                            if (report_text.Length == 2)
                             {
-                                break;
+                                total_reports = Int32.Parse(report_text[1]);
                             }
-                            else if (i == 100)
+                            else if (report_text.Length == 1)
                             {
-                                update_Log("ERROR:\tUnable to find power button element for " + item.Name + ".");
-                                break;
+                                total_reports = Int32.Parse(report_text[0]);
                             }
-                            Thread.Sleep(250);
+                            else if (report_text.Length == 3)
+                            {
+                                total_reports = Int32.Parse(driver.FindElement(By.XPath(@"//*[@id='pagination']/div[1]/div/b[2]")).Text);
+                            }
                         }
-                    } 
+                        catch (NoSuchElementException) { }
 
-                    //check recent reports
-                    int total_reports = 0;
-                    url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + @".ordsvy.gov.uk/config_reports";
-                    driver.Navigate().GoToUrl(url);
-
-                    //more than 30 reports?
-                    try
-                    {
-                        IWebElement first_page_num = driver.FindElement(By.XPath(@"/html/body/div[3]/div/div[3]/div/div/b"));
-                        string[] report_text = first_page_num.Text.Split(' ');
-                        if (report_text.Length == 2)
+                        //check report for any failed/skipped msgs
+                        if (item.Reports != total_reports && item.First_Run == false)
                         {
-                            total_reports = Int32.Parse(report_text[1]);
+                            bool failed = false;
+                            //check for failed
+                            if (failed == true)
+                            {
+                                item.Fails++;
+                                if (item.Fails >= item.MaxFail)
+                                {
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports++;
+                                    item.Failure = "Max fails reached.";
+                                    Update_Lists(item);
+                                    break;
+                                }
+                                else
+                                {
+                                    item.Deploy = true;
+                                }
+                            }
+
+                            else
+                            {
+                                bool skipped = false;
+                                //check for skipped
+                                if (skipped == true)
+                                {
+                                    update_Log("ERROR:\t" + item.Name + " contains skipped report.");
+                                    item.Skipped = true;
+                                    item.Deploy = true;
+                                }
+                                else
+                                {
+                                    item.Passed = true;
+                                    item.Deploy = false;
+                                    item.Skipped = false;
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports++;
+
+                                    Update_Lists(item);
+                                    break;
+                                }
+                            }
+
                         }
-                        else if (report_text.Length == 1)
-                        {
-                            total_reports = Int32.Parse(report_text[0]);
-                        }
-                        else if (report_text.Length == 3)
-                        {
-                            total_reports = Int32.Parse(driver.FindElement(By.XPath(@"//*[@id='pagination']/div[1]/div/b[2]")).Text);
-                            
-                        }
-                        update_Log("COUT:\t" + total_reports);
-                    }
-                    catch { }
 
 
 
 
 
-
-
-                    //apply action
-                    while (false)
-                    {
+                        //apply action
                         switch (item.Action)
                         {
                             case "Deploy Puppet":
-                                if (item.Reports != total_reports)
-                                {
 
+                                if (item.First_Run == true)
+                                {
+                                    //check in ON state
+                                    if (item.Power_State == "OFF")
+                                    {
+                                        turn_on(item);
+                                    }
+
+                                    //deploy puppet
+
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports = 0;
+                                    item.First_Run = false;
+                                }
+                                else if (item.Deploy == true)
+                                {
+                                    //check in ON state
+                                    if (item.Power_State == "OFF")
+                                    {
+                                        turn_on(item);
+                                    }
+
+                                    //deploy puppet
+
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports++;
+                                    item.Deploy = false;
                                 }
                                 break;
+
                             case "Rebuild":
-                                Console.WriteLine("Case 2");
+                                if (item.First_Run == true)
+                                {
+                                    //goto machine page
+
+                                    //check in OFF state
+
+                                    //build
+
+                                    turn_on(item);
+
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports = 0;
+                                    item.First_Run = false;
+                                }
+
+                                else if (item.Deploy == false)
+                                {
+                                    //check in ON state
+
+                                    //deploy puppet
+
+                                    item.Reports = total_reports;
+                                    item.Recent_Reports++;
+                                    item.Deploy = true;
+                                }
                                 break;
+
                             case "Restart":
-                                Console.WriteLine("Case 3");
-                                break;
-                            default:
-                                Console.WriteLine("Default case");
+                                update_Log("TASK:\t" + item.Name + " Restart.");
+                                if (item.Power_State == "ON")
+                                {
+                                    turn_off(item);
+
+                                    turn_on(item);
+                                }
+                                else if (item.Power_State == "OFF")
+                                {
+                                    turn_on(item);
+                                }
                                 break;
                         }
+
+                        Update_Lists(item);
                     }
-                    Update_Lists(item);
+
+                    catch 
+                    {
+                        login_successful = false;
+
+                        //revert potential changes
+                        item.Passed = backup.Passed;
+                        item.Skipped = backup.Skipped;
+                        item.Recent_Reports = backup.Recent_Reports;
+                        item.Reports = backup.Reports;                        
+                        item.First_Run = backup.First_Run;
+                        item.Fails = backup.Fails;
+                        item.Failure = backup.Failure;
+
+                        //login
+                        while (login_successful == false && cancelled == false)
+                        {
+                            if (toggleBtn.Text == "Run")
+                            {
+                                cancelled = true;
+                            }
+                            else
+                            {
+                                login_successful = Login();
+                            }
+                        }
+                    }
                 }
                 n = num_of_jobs();
+                Thread.Sleep(3000);
             }
-            
+
 
 
         }
@@ -296,7 +417,9 @@ namespace Foreman_GenIE
         private bool Login()
         {
             bool loaded = false;
-            bool login_successfull = false;
+            IWebElement username_field;
+            IWebElement password_field;
+
             update_Log("TASK:\tStarting Webdriver...");
             try
             {
@@ -307,8 +430,8 @@ namespace Foreman_GenIE
 
                 try
                 {
-                    IWebElement username_field = driver.FindElement(By.XPath(@"//*[@id='login_login']"));
-                    IWebElement password_field = driver.FindElement(By.XPath(@"//*[@id='login_password']"));
+                    username_field = driver.FindElement(By.XPath(@"//*[@id='login_login']"));
+                    password_field = driver.FindElement(By.XPath(@"//*[@id='login_password']"));
                     loaded = true;
                 }
                 catch
@@ -323,48 +446,79 @@ namespace Foreman_GenIE
             {
                 update_Log("ERROR:\tUnable to initiate Webdriver.\n");
             }
- 
+
 
             //login using credentials
-            if (loaded == true && cancelled  == false)
+            if (loaded == true && cancelled == false)
             {
                 update_Log("TASK:\tWaiting for successful Login...");
-                while (login_successfull == false && cancelled  == false)
-                {
-                    try
+                if (login_successfull == false) {
+                    while (login_successfull == false && cancelled == false)
                     {
-                        IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
-                        login_successfull = true;
-                        update_Log("SUCCESS:\tLogin successful.");
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        Thread.Sleep(250);
-                    }
-                    catch (WebDriverException)
-                    {
-                        update_Log("ERROR:\tLost Webdriver.");
-                        kill_webdriver();
-                        login_successfull = false;
-                        return login_successfull;
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        update_Log("ERROR:\tLost Webdriver.");
-                        kill_webdriver();
-                        login_successfull = false;
-                        return login_successfull;
-                    }
+                        try
+                        {
+                            try
+                            {
+                                username = driver.FindElement(By.XPath(@"//*[@id='login_login']")).GetAttribute("value");
+                                password = driver.FindElement(By.XPath(@"//*[@id='login_password']")).GetAttribute("value");
+                            }
+                            catch (NoSuchElementException) { }
 
+                            IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
+                            login_successfull = true;
+                            update_Log("SUCCESS:\tLogin successful.");
+                        }
+                        catch (NoSuchElementException)
+                        {
+                            Thread.Sleep(250);
+                        }
+                        catch (WebDriverException)
+                        {
+                            update_Log("ERROR:\tLost Webdriver.");
+                            kill_webdriver();
+                            return login_successfull;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            update_Log("ERROR:\tLost Webdriver.");
+                            kill_webdriver();
+                            return login_successfull;
+                        }
+
+                    }
+                }
+
+                else if (login_successfull == true)
+                {
+                    username_field = driver.FindElement(By.XPath(@"//*[@id='login_login']"));
+                    password_field = driver.FindElement(By.XPath(@"//*[@id='login_password']"));
+
+                    username_field.SendKeys(username);
+                    password_field.SendKeys(password);
+
+                    IWebElement login_btn = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[2]/form/div[3]/div/input"));
+                    login_btn.Click();
+
+                    login_successfull = false;
+                    while (login_successfull == false && cancelled == false)
+                    {
+                        try
+                        {
+                            IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
+                            login_successfull = true;
+                            update_Log("SUCCESS:\tLogin successful.");
+                        }
+                        catch { }
+                    }
                 }
             }
             return login_successfull;
         }
-        
+
 
         private void closeBtn_Click(object sender, EventArgs e)
         {
-            cancelled  = true;
+            cancelled = true;
             kill_webdriver();
             this.Close();
         }
@@ -384,6 +538,10 @@ namespace Foreman_GenIE
             try
             {
                 logBox.Items.Add(text);
+                if (scrollBtn.Text == "Stop")
+                {
+                    logBox.SelectedIndex = logBox.Items.Count - 1;
+                }
             }
             catch { }
         }
@@ -406,19 +564,14 @@ namespace Foreman_GenIE
             catch { }
         }
 
-        private void turn_on()
+        private void turn_on(Machine m)
         {
-
+            update_Log("TASK:\t" + m.Name + " is OFF, turning ON...");
         }
 
-        private void turn_off()
+        private void turn_off(Machine m)
         {
-
-        }
-
-        private void restart()
-        {
-
+            update_Log("TASK:\t" + m.Name + " is ON, turning OFF...");
         }
 
         private void rebuild()
@@ -444,17 +597,77 @@ namespace Foreman_GenIE
 
         private void Update_Lists(Machine machine)
         {
-            for (int i = 0; i < progressView.Items.Count; i++)
+            if (machine.Fails >= machine.MaxFail || machine.Failure != null)
             {
-                if (progressView.Items[i].SubItems[0].Text == machine.Name)
+                update_Log("ERROR:\t" + machine.Name + " Failed due to '" + machine.Failure + "'.");
+                failedList.Add(machine);
+                failView.Items.Add(new ListViewItem(new string[] { machine.Name, machine.Environment, machine.Role, machine.Action, machine.Fails.ToString(), machine.Failure }));
+                failView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                failView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                for (int x = 0; x < progressView.Items.Count; x++)
                 {
-                    progressView.Items[i].SubItems[4].Text = machine.Power_State;
-                    progressView.Items[i].SubItems[5].Text = machine.Passes.ToString();
-                    progressView.Items[i].SubItems[6].Text = machine.Fails.ToString();
+                    if (progressView.Items[x].SubItems[0].Text == machine.Name)
+                    {
+                        progressView.Items[x].Remove();
+                    }
+                }
+                jobList.Remove(machine);
+                update_Log("TASK:\tMoved " + machine.Name + " to Failed.");
+            }
+
+            else if (machine.Passed == true)
+            {
+                update_Log("SUCCESS:\t" + machine.Name + " Passed.");
+                passedList.Add(machine);
+                passView.Items.Add(new ListViewItem(new string[] { machine.Name, machine.Environment, machine.Role, machine.Action }));
+                passView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                passView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                for (int x = 0; x < progressView.Items.Count; x++)
+                {
+                    if (progressView.Items[x].SubItems[0].Text == machine.Name)
+                    {
+                        progressView.Items[x].Remove();
+                    }
+                }
+                jobList.Remove(machine);
+                update_Log("TASK:\t" + machine.Name + " moved to Passed.");
+            }
+
+            else
+            {
+                for (int i = 0; i < progressView.Items.Count; i++)
+                {
+                    if (progressView.Items[i].SubItems[0].Text == machine.Name)
+                    {
+                        progressView.Items[i].SubItems[4].Text = machine.Power_State;
+                        progressView.Items[i].SubItems[5].Text = machine.Recent_Reports.ToString();
+                        progressView.Items[i].SubItems[6].Text = machine.Fails.ToString() + "/" + machine.MaxFail.ToString();
+                        progressView.Items[i].SubItems[7].Text = machine.Skipped.ToString();
+                    }
                 }
             }
+
             //progressView.Items.Add(new ListViewItem(new string[] { item.Name, item.Environment, item.Role, item.Action, item.Power_State, passes, fails }));
-            
+
+        }
+
+        private void scrollBtn_Click_1(object sender, EventArgs e)
+        {
+            if (scrollBtn.Text == "Stop")
+            {
+                scrollBtn.Text = "Start";
+            }
+            else
+            {
+                scrollBtn.Text = "Stop";
+            }
+        }
+
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            cancelled = true;
         }
     }
 }

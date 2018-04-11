@@ -47,7 +47,7 @@ namespace Foreman_GenIE
                     Machines.Add(new Machine
                     {
                         Name = attribute[1],
-                        Environment = attribute[0],
+                        Catagory = attribute[0],
                         Role = attribute[2],
                         Action = "n/a"
 
@@ -60,7 +60,7 @@ namespace Foreman_GenIE
                         Machines.Add(new Machine
                         {
                             Name = attribute[1],
-                            Environment = attribute[0],
+                            Catagory = attribute[0],
                             Role = attribute[2],
                             Action = "n/a"
 
@@ -95,7 +95,6 @@ namespace Foreman_GenIE
                 filterCb.Text = "All";
 
                 if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework" || filterCb.Text == "Publication") {
-                    passTBar.Enabled = true;
                     failTBar.Enabled = true;
                     submitBtn.Enabled = true;
                     removeBtn.Enabled = true;
@@ -104,12 +103,10 @@ namespace Foreman_GenIE
                     actionCb.Enabled = true;
                     runBtn.Enabled = true;
 
-                    passLbl.Text = "Minimum Passes: " + passTBar.Value;
                     failLbl.Text = "Maximum Fails: " + failTBar.Value;  
                 }
                 else
                 {
-                    passTBar.Enabled = false;
                     failTBar.Enabled = false;
                     submitBtn.Enabled = false;
                     removeBtn.Enabled = false;
@@ -125,7 +122,6 @@ namespace Foreman_GenIE
             else
             {
                 filterCb.Enabled = false;
-                passTBar.Enabled = false;
                 failTBar.Enabled = false;
                 submitBtn.Enabled = false;
                 removeBtn.Enabled = false;
@@ -144,7 +140,6 @@ namespace Foreman_GenIE
         {
             if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework" || filterCb.Text == "Publication")
             {
-                passTBar.Enabled = true;
                 failTBar.Enabled = true;
                 submitBtn.Enabled = true;
                 removeBtn.Enabled = true;
@@ -155,7 +150,6 @@ namespace Foreman_GenIE
 
                 selectionList.Clear();
 
-                passLbl.Text = "Minimum Passes: " + passTBar.Value;
                 failLbl.Text = "Maximum Fails: " + failTBar.Value;
 
                 List<Machine> filteredList = new List<Machine>();
@@ -198,7 +192,6 @@ namespace Foreman_GenIE
             
             else
             {
-                passTBar.Enabled = false;
                 failTBar.Enabled = false;
                 submitBtn.Enabled = false;
                 removeBtn.Enabled = false;
@@ -209,11 +202,6 @@ namespace Foreman_GenIE
                 selectionList.Clear();
             }
             selectionList.Focus();
-        }
-
-        private void passTBar_Scroll(object sender, EventArgs e)
-        {
-            passLbl.Text = "Minimum Passes: " + passTBar.Value;
         }
 
         private void failTBar_Scroll(object sender, EventArgs e)
@@ -287,10 +275,8 @@ namespace Foreman_GenIE
                             Environment = envirCb.Text,
                             Role = item.SubItems[2].Text,
                             Action = actionCb.Text,
-                            MinPass = passTBar.Value,
+                            Passed = false,
                             MaxFail = failTBar.Value,
-                            Passes = 0,
-                            Fails = 0
                         });
 
                         jobListSize++;
@@ -313,8 +299,7 @@ namespace Foreman_GenIE
                     listView1.Columns.Add("Environment");
                     listView1.Columns.Add("Role");
                     listView1.Columns.Add("Action");
-                    listView1.Columns.Add("Pass");
-                    listView1.Columns.Add("Fail");
+                    listView1.Columns.Add("Fails");
 
                     listView1.CheckBoxes = true;
                 }
@@ -323,7 +308,7 @@ namespace Foreman_GenIE
                 {
                     foreach (Machine item in jobList)
                     {
-                        listView1.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Environment, item.Role, item.Action, item.MinPass.ToString(), item.MaxFail.ToString() }));
+                        listView1.Items.Add(new ListViewItem(new string[] { "", item.Name, item.Environment, item.Role, item.Action, item.MaxFail.ToString() }));
                     }
 
                     listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -419,10 +404,12 @@ namespace Foreman_GenIE
                         Role = item.SubItems[3].Text,
                         Action = item.SubItems[4].Text,
                         Power_State = "?",
-                        MinPass = Convert.ToInt32(item.SubItems[5].Text),
-                        MaxFail = Convert.ToInt32(item.SubItems[6].Text),
-                        Passes = 0,
-                        Fails = 0
+                        MaxFail = Convert.ToInt32(item.SubItems[5].Text),
+                        Reports = 0,
+                        Fails = 0,
+                        Skipped = false,
+                        First_Run = true,
+                        Failure = null
                     });
                 }
             }

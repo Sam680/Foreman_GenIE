@@ -10,14 +10,19 @@ namespace Foreman_GenIE
     {
         public string Name { get; set; }
         public string Environment { get; set; }
+        public string Catagory { get; set; }
         public string Role { get; set; }
         public string Action { get; set; }
+        public bool Passed { get; set; }
         public int MaxFail { get; set; }
-        public int MinPass { get; set; }
         public string Power_State { get; set; }
         public int Reports { get; set; }
-        public int Passes { get; set; }
+        public int Recent_Reports { get; set; }
         public int Fails { get; set; }
+        public string Failure { get; set; }
+        public bool Skipped { get; set; }
+        public bool First_Run { get; set; }
+        public bool Deploy { get; set; }
 
     }
 }

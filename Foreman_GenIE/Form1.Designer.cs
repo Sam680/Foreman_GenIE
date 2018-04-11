@@ -37,9 +37,7 @@
             this.submitBtn = new System.Windows.Forms.Button();
             this.failTBar = new System.Windows.Forms.TrackBar();
             this.failLbl = new System.Windows.Forms.Label();
-            this.passTBar = new System.Windows.Forms.TrackBar();
             this.label1 = new System.Windows.Forms.Label();
-            this.passLbl = new System.Windows.Forms.Label();
             this.actionCb = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -66,7 +64,6 @@
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.failTBar)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.passTBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
@@ -147,7 +144,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(189, 57);
             this.label4.TabIndex = 8;
-            this.label4.Text = "MACHINE LIST";
+            this.label4.Text = "RESULT LIST";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tableLayoutPanel2
@@ -156,27 +153,23 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.submitBtn, 0, 7);
-            this.tableLayoutPanel2.Controls.Add(this.failTBar, 0, 6);
-            this.tableLayoutPanel2.Controls.Add(this.failLbl, 0, 5);
-            this.tableLayoutPanel2.Controls.Add(this.passTBar, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.submitBtn, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.failTBar, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.failLbl, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.label1, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.passLbl, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.actionCb, 0, 2);
             this.tableLayoutPanel2.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel2.Location = new System.Drawing.Point(328, 66);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 8;
+            this.tableLayoutPanel2.RowCount = 6;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 138F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 19F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 18F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 51F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(112, 364);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(112, 315);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
             // submitBtn
@@ -185,9 +178,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.submitBtn.Enabled = false;
-            this.submitBtn.Location = new System.Drawing.Point(3, 329);
+            this.submitBtn.Location = new System.Drawing.Point(3, 266);
             this.submitBtn.Name = "submitBtn";
-            this.submitBtn.Size = new System.Drawing.Size(106, 32);
+            this.submitBtn.Size = new System.Drawing.Size(106, 46);
             this.submitBtn.TabIndex = 3;
             this.submitBtn.Text = "Submit";
             this.submitBtn.UseVisualStyleBackColor = true;
@@ -196,10 +189,10 @@
             // failTBar
             // 
             this.failTBar.Enabled = false;
-            this.failTBar.Location = new System.Drawing.Point(3, 286);
+            this.failTBar.Location = new System.Drawing.Point(3, 215);
             this.failTBar.Minimum = 1;
             this.failTBar.Name = "failTBar";
-            this.failTBar.Size = new System.Drawing.Size(104, 37);
+            this.failTBar.Size = new System.Drawing.Size(104, 45);
             this.failTBar.TabIndex = 9;
             this.failTBar.Value = 5;
             this.failTBar.Scroll += new System.EventHandler(this.failTBar_Scroll);
@@ -209,22 +202,11 @@
             this.failLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.failLbl.AutoSize = true;
-            this.failLbl.Location = new System.Drawing.Point(3, 270);
+            this.failLbl.Location = new System.Drawing.Point(3, 199);
             this.failLbl.Name = "failLbl";
             this.failLbl.Size = new System.Drawing.Size(106, 13);
             this.failLbl.TabIndex = 8;
             this.failLbl.Text = "Maximum Fails: 5";
-            // 
-            // passTBar
-            // 
-            this.passTBar.Enabled = false;
-            this.passTBar.Location = new System.Drawing.Point(3, 223);
-            this.passTBar.Minimum = 1;
-            this.passTBar.Name = "passTBar";
-            this.passTBar.Size = new System.Drawing.Size(104, 39);
-            this.passTBar.TabIndex = 1;
-            this.passTBar.Value = 2;
-            this.passTBar.Scroll += new System.EventHandler(this.passTBar_Scroll);
             // 
             // label1
             // 
@@ -236,17 +218,6 @@
             this.label1.Size = new System.Drawing.Size(106, 13);
             this.label1.TabIndex = 10;
             this.label1.Text = "Select Action";
-            // 
-            // passLbl
-            // 
-            this.passLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.passLbl.AutoSize = true;
-            this.passLbl.Location = new System.Drawing.Point(3, 207);
-            this.passLbl.Name = "passLbl";
-            this.passLbl.Size = new System.Drawing.Size(106, 13);
-            this.passLbl.TabIndex = 7;
-            this.passLbl.Text = "Minimum Passes: 2";
             // 
             // actionCb
             // 
@@ -383,7 +354,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(115, 57);
             this.label3.TabIndex = 7;
-            this.label3.Text = "ENVIRONMENT";
+            this.label3.Text = "SEARCH";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tableLayoutPanel6
@@ -586,7 +557,6 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.failTBar)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.passTBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel5.ResumeLayout(false);
@@ -612,7 +582,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Button submitBtn;
-        private System.Windows.Forms.Label passLbl;
         private System.Windows.Forms.Label failLbl;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
@@ -624,7 +593,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.ComboBox envirCb;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TrackBar passTBar;
         private System.Windows.Forms.TrackBar failTBar;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.Button removeBtn;
