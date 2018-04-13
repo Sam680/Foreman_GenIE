@@ -11,6 +11,7 @@ using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace Foreman_GenIE
 {
@@ -18,17 +19,27 @@ namespace Foreman_GenIE
     {
 
         IWebDriver driver;
-        bool login_successfull = false;
-        string username;
-        string password;
+        string username = "";
+        string password = "";
         bool cancelled = true;
+        bool login_successful = false;
         static List<Machine> jobList = new List<Machine>();
         static List<Machine> passedList = new List<Machine>();
         static List<Machine> failedList = new List<Machine>();
 
-        public Form2()
+        private int hWnd;
+        private const int SW_HIDE = 0;
+        private const int SW_MINIMISE = 1;
+        private const int SW_MAXIMISE = 2;
+        private const int SW_RESTORE = 9;
+        [DllImport("User32")]
+        private static extern int ShowWindow(int hwnd, int nCmdShow);
+
+        Form opener;
+        public Form2(Form parentForm)
         {
             InitializeComponent();
+            opener = parentForm;
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -103,23 +114,11 @@ namespace Foreman_GenIE
         private void Main_Thread()
         {
             update_Log("TASK:\tBegin.");
-
-
-            bool login_successful = false;
             int n = 0;
 
-            //login
-            while (login_successful == false && cancelled == false)
-            {
-                if (toggleBtn.Text == "Run")
-                {
-                    cancelled = true;
-                }
-                else
-                {
-                    login_successful = Login();
-                }
-            }
+            Login();
+
+  
 
             //main loop
             n = num_of_jobs();
@@ -127,7 +126,21 @@ namespace Foreman_GenIE
             {
                 foreach (Machine item in jobList)
                 {
+                    //highlight current machine
+                    foreach(ListViewItem row in progressView.Items)
+                    {
+                        if (row.SubItems[0].Text == item.Name)
+                        {
+                            row.SubItems[0].BackColor = Color.LightBlue;
+                        }
+                        else
+                        {
+                            row.SubItems[0].BackColor = Color.White;
+                        }
+                    }
+
                     Machine backup = item;
+
                     try
                     {
                         if (cancelled == true)
@@ -140,8 +153,22 @@ namespace Foreman_GenIE
                         {
                             driver.Navigate().GoToUrl(url);
 
+                            IWebElement power_button = null;
                             int count = 0;
-                            IWebElement power_button = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
+                            for (count = 0; count < 20; count++) {
+                                try
+                                {
+                                    power_button = driver.FindElement(By.XPath(@"//*[@id='title_action']/div/div[3]/a"));
+                                }
+                                catch (InvalidOperationException)
+                                {
+                                    if (count == 20)
+                                    {
+                                        Console.WriteLine("InvalidOperationException timed out!");
+                                    }
+                                }
+                            }
+                            count = 0;
                             while (power_button.Text.Contains("Power") == false)
                             {
                                 count++;
@@ -161,7 +188,7 @@ namespace Foreman_GenIE
                             if (cancelled == false)
                             {
                                 try
-                                {
+                                { 
                                     string host_not_found = driver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div/strong")).Text;
                                     if (host_not_found == "Host not found")
                                     {
@@ -175,10 +202,44 @@ namespace Foreman_GenIE
                                 {
                                     Thread.Sleep(1000);
                                 }
-
-
+                            }
+                            else
+                            {
+                                break;
                             }
                         }
+
+                        catch (InvalidOperationException)
+                        {
+                            break;
+                        }
+
+                        catch (NullReferenceException)
+                        {
+                            kill_webdriver();
+
+                            if (cancelled == false)
+                            {
+                                //revert potential changes
+                                item.Passed = backup.Passed;
+                                item.Skipped = backup.Skipped;
+                                item.Recent_Reports = backup.Recent_Reports;
+                                item.Reports = backup.Reports;
+                                item.First_Run = backup.First_Run;
+                                item.Fails = backup.Fails;
+                                item.Failure = backup.Failure;
+
+                                //login
+                                Login();
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            break;
+                        }
+                    
 
                         //check power state
                         int i = 0;
@@ -220,82 +281,90 @@ namespace Foreman_GenIE
                                 }
                                 Thread.Sleep(250);
                             }
+                            catch (InvalidOperationException)
+                            {
+                                break;
+                            }
                         }
 
-                        //check recent reports
+                        //check reports
                         int total_reports = 0;
-                        url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + @".ordsvy.gov.uk/config_reports";
-                        driver.Navigate().GoToUrl(url);
-
-                        //more than 30 reports?
-                        try
+                        if (item.Action != "Restart")
                         {
-                            IWebElement first_page_num = driver.FindElement(By.XPath(@"/html/body/div[3]/div/div[3]/div/div/b"));
-                            string[] report_text = first_page_num.Text.Split(' ');
-                            if (report_text.Length == 2)
-                            {
-                                total_reports = Int32.Parse(report_text[1]);
-                            }
-                            else if (report_text.Length == 1)
-                            {
-                                total_reports = Int32.Parse(report_text[0]);
-                            }
-                            else if (report_text.Length == 3)
-                            {
-                                total_reports = Int32.Parse(driver.FindElement(By.XPath(@"//*[@id='pagination']/div[1]/div/b[2]")).Text);
-                            }
-                        }
-                        catch (NoSuchElementException) { }
+                            //check recent reports
+                            url = "https://foreman.ordsvy.gov.uk/hosts/" + item.Name + @".ordsvy.gov.uk/config_reports";
+                            driver.Navigate().GoToUrl(url);
 
-                        //check report for any failed/skipped msgs
-                        if (item.Reports != total_reports && item.First_Run == false)
-                        {
-                            bool failed = false;
-                            //check for failed
-                            if (failed == true)
+                            //more than 30 reports?
+                            try
                             {
-                                item.Fails++;
-                                if (item.Fails >= item.MaxFail)
+                                IWebElement first_page_num = driver.FindElement(By.XPath(@"/html/body/div[3]/div/div[3]/div/div/b"));
+                                string[] report_text = first_page_num.Text.Split(' ');
+                                if (report_text.Length == 2)
                                 {
-                                    item.Reports = total_reports;
-                                    item.Recent_Reports++;
-                                    item.Failure = "Max fails reached.";
-                                    Update_Lists(item);
-                                    break;
+                                    total_reports = Int32.Parse(report_text[1]);
                                 }
+                                else if (report_text.Length == 1)
+                                {
+                                    total_reports = Int32.Parse(report_text[0]);
+                                }
+                                else if (report_text.Length == 3)
+                                {
+                                    total_reports = Int32.Parse(driver.FindElement(By.XPath(@"//*[@id='pagination']/div[1]/div/b[2]")).Text);
+                                }
+                            }
+                            catch (NoSuchElementException) { }
+
+                            catch (InvalidOperationException) { break; }
+
+                            //check report for any failed/skipped msgs
+                            if (item.Reports != total_reports && item.First_Run == false)
+                            {
+                                Console.WriteLine(item.First_Run);
+                                bool failed = false;
+                                //check for failed
+                                if (failed == true)
+                                {
+                                    item.Fails++;
+                                    if (item.Fails >= item.MaxFail)
+                                    {
+                                        item.Reports = total_reports;
+                                        item.Recent_Reports++;
+                                        item.Failure = "Max fails reached.";
+                                        Update_Lists(item);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        item.Deploy = true;
+                                    }
+                                }
+
                                 else
                                 {
-                                    item.Deploy = true;
+                                    bool skipped = false;
+                                    //check for skipped
+                                    if (skipped == true)
+                                    {
+                                        update_Log("ERROR:\t" + item.Name + " contains skipped report.");
+                                        item.Skipped = true;
+                                        item.Deploy = true;
+                                    }
+                                    else
+                                    {
+                                        item.Passed = true;
+                                        item.Deploy = false;
+                                        item.Skipped = false;
+                                        item.Reports = total_reports;
+                                        item.Recent_Reports++;
+
+                                        Update_Lists(item);
+                                        break;
+                                    }
                                 }
+
                             }
-
-                            else
-                            {
-                                bool skipped = false;
-                                //check for skipped
-                                if (skipped == true)
-                                {
-                                    update_Log("ERROR:\t" + item.Name + " contains skipped report.");
-                                    item.Skipped = true;
-                                    item.Deploy = true;
-                                }
-                                else
-                                {
-                                    item.Passed = true;
-                                    item.Deploy = false;
-                                    item.Skipped = false;
-                                    item.Reports = total_reports;
-                                    item.Recent_Reports++;
-
-                                    Update_Lists(item);
-                                    break;
-                                }
-                            }
-
                         }
-
-
-
 
 
                         //apply action
@@ -311,11 +380,18 @@ namespace Foreman_GenIE
                                         turn_on(item);
                                     }
 
-                                    //deploy puppet
-
-                                    item.Reports = total_reports;
-                                    item.Recent_Reports = 0;
-                                    item.First_Run = false;
+                                    //after attempt to turn on
+                                    if (item.Power_State == "ON")
+                                    {
+                                        //deploy puppet
+                                        item.Reports = total_reports;
+                                        item.Recent_Reports = 0;
+                                        item.First_Run = false;
+                                    }
+                                    else
+                                    {
+                                        update_Log("ERROR:\t" + item.Name + " power state change failed, skipping action.");
+                                    }
                                 }
                                 else if (item.Deploy == true)
                                 {
@@ -325,11 +401,33 @@ namespace Foreman_GenIE
                                         turn_on(item);
                                     }
 
-                                    //deploy puppet
+                                    if (item.Power_State == "ON")
+                                    {
+                                        //deploy puppet
+                                        item.Reports = total_reports;
+                                        item.Recent_Reports++;
+                                        item.Deploy = false;
+                                    }
+                                    else
+                                    {
+                                        update_Log("ERROR:\t" + item.Name + " power state change failed, skipping action.");
+                                    }
+                                }
+                                else if (item.Power_State == "OFF")
+                                {
+                                    turn_on(item);
 
-                                    item.Reports = total_reports;
-                                    item.Recent_Reports++;
-                                    item.Deploy = false;
+                                    if (item.Power_State == "ON")
+                                    {
+                                        //deploy puppet
+                                        item.Reports = total_reports;
+                                        item.Recent_Reports++;
+                                        item.Deploy = false;
+                                    }
+                                    else
+                                    {
+                                        update_Log("ERROR:\t" + item.Name + " power state change failed, skipping action.");
+                                    }
                                 }
                                 break;
 
@@ -342,14 +440,14 @@ namespace Foreman_GenIE
 
                                     //build
 
-                                    turn_on(item);
+                                    //turn_on(item);
 
                                     item.Reports = total_reports;
                                     item.Recent_Reports = 0;
                                     item.First_Run = false;
                                 }
 
-                                else if (item.Deploy == false)
+                                else if (item.Deploy == true)
                                 {
                                     //check in ON state
 
@@ -358,6 +456,10 @@ namespace Foreman_GenIE
                                     item.Reports = total_reports;
                                     item.Recent_Reports++;
                                     item.Deploy = true;
+                                }
+                                else if (item.Power_State == "OFF")
+                                {
+                                    turn_on(item);
                                 }
                                 break;
 
@@ -379,32 +481,44 @@ namespace Foreman_GenIE
                         Update_Lists(item);
                     }
 
-                    catch 
+                    catch (StaleElementReferenceException)
                     {
-                        login_successful = false;
-
+                        update_Log("Hit Stale Element!");
                         //revert potential changes
                         item.Passed = backup.Passed;
                         item.Skipped = backup.Skipped;
                         item.Recent_Reports = backup.Recent_Reports;
-                        item.Reports = backup.Reports;                        
+                        item.Reports = backup.Reports;
                         item.First_Run = backup.First_Run;
                         item.Fails = backup.Fails;
                         item.Failure = backup.Failure;
-
-                        //login
-                        while (login_successful == false && cancelled == false)
-                        {
-                            if (toggleBtn.Text == "Run")
-                            {
-                                cancelled = true;
-                            }
-                            else
-                            {
-                                login_successful = Login();
-                            }
-                        }
+                        Thread.Sleep(250);
+                        continue;
                     }
+
+                    catch (WebDriverException)
+                    {
+                        kill_webdriver();
+
+                        if (cancelled == false)
+                        {
+                            //revert potential changes
+                            item.Passed = backup.Passed;
+                            item.Skipped = backup.Skipped;
+                            item.Recent_Reports = backup.Recent_Reports;
+                            item.Reports = backup.Reports;
+                            item.First_Run = backup.First_Run;
+                            item.Fails = backup.Fails;
+                            item.Failure = backup.Failure;
+
+                            //login
+                            Login();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }      
                 }
                 n = num_of_jobs();
                 Thread.Sleep(3000);
@@ -414,7 +528,7 @@ namespace Foreman_GenIE
 
         }
 
-        private bool Login()
+        private void Login()
         {
             bool loaded = false;
             IWebElement username_field;
@@ -425,6 +539,15 @@ namespace Foreman_GenIE
             {
                 //start webdriver
                 driver = new FirefoxDriver();
+
+                //hide webdriver cmd
+                foreach (Process proc in Process.GetProcessesByName("geckodriver"))
+                {
+                    hWnd = (int)proc.MainWindowHandle;
+                    ShowWindow(hWnd, SW_HIDE);
+                }
+
+
                 driver.Navigate().GoToUrl("https://foreman.ordsvy.gov.uk/users/login");
                 update_Log("SUCCESS:\tWebdriver started.");
 
@@ -452,8 +575,8 @@ namespace Foreman_GenIE
             if (loaded == true && cancelled == false)
             {
                 update_Log("TASK:\tWaiting for successful Login...");
-                if (login_successfull == false) {
-                    while (login_successfull == false && cancelled == false)
+                if (login_successful == false) {
+                    while (login_successful == false && cancelled == false)
                     {
                         try
                         {
@@ -465,8 +588,10 @@ namespace Foreman_GenIE
                             catch (NoSuchElementException) { }
 
                             IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
-                            login_successfull = true;
+                            login_successful = true;
                             update_Log("SUCCESS:\tLogin successful.");
+                            driver.Manage().Window.Minimize();
+                            this.Focus();
                         }
                         catch (NoSuchElementException)
                         {
@@ -476,19 +601,19 @@ namespace Foreman_GenIE
                         {
                             update_Log("ERROR:\tLost Webdriver.");
                             kill_webdriver();
-                            return login_successfull;
+                            break;
                         }
                         catch (InvalidOperationException)
                         {
                             update_Log("ERROR:\tLost Webdriver.");
                             kill_webdriver();
-                            return login_successfull;
+                            break;
                         }
 
                     }
                 }
 
-                else if (login_successfull == true)
+                else if (login_successful == true)
                 {
                     username_field = driver.FindElement(By.XPath(@"//*[@id='login_login']"));
                     password_field = driver.FindElement(By.XPath(@"//*[@id='login_password']"));
@@ -499,20 +624,22 @@ namespace Foreman_GenIE
                     IWebElement login_btn = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[2]/form/div[3]/div/input"));
                     login_btn.Click();
 
-                    login_successfull = false;
-                    while (login_successfull == false && cancelled == false)
+                    login_successful = false;
+                    while (login_successful == false && cancelled == false)
                     {
                         try
                         {
                             IWebElement hat_in_homescreen = driver.FindElement(By.XPath(@"/html/body/div[1]/div/div/div[1]/img"));
-                            login_successfull = true;
+                            login_successful = true;
                             update_Log("SUCCESS:\tLogin successful.");
+                            
+                            driver.Manage().Window.Minimize();
+                            this.Focus();
                         }
                         catch { }
                     }
                 }
             }
-            return login_successfull;
         }
 
 
@@ -552,13 +679,38 @@ namespace Foreman_GenIE
             {
                 driver.Close();
             }
-            catch { }
+
+            catch (WebDriverException)
+            {
+                if (cancelled == false)
+                {
+                    update_Log("ERROR:\tThe WebDriver closed unexpectedly. Unable to close FireFox instance.");
+
+                    kill_webdriver();
+
+                    //login
+                    while (login_successful == false && cancelled == false)
+                    {
+                        if (toggleBtn.Text == "Run")
+                        {
+                            cancelled = true;
+                        }
+                        else
+                        {
+                            Login();
+                        }
+                    }
+                }
+              
+            }
+            catch (InvalidOperationException) { }
+            catch (NullReferenceException) { }
 
             try
             {
                 foreach (Process proc in Process.GetProcessesByName("geckodriver"))
                 {
-                    //proc.Kill();
+                    proc.Kill();
                 }
             }
             catch { }
@@ -642,6 +794,14 @@ namespace Foreman_GenIE
                     if (progressView.Items[i].SubItems[0].Text == machine.Name)
                     {
                         progressView.Items[i].SubItems[4].Text = machine.Power_State;
+                        if (machine.Power_State == "ON")
+                        {
+                            progressView.Items[i].ForeColor = Color.DarkGreen;
+                        }
+                        else if (machine.Power_State == "OFF")
+                        {
+                            progressView.Items[i].ForeColor = Color.DarkRed;
+                        }
                         progressView.Items[i].SubItems[5].Text = machine.Recent_Reports.ToString();
                         progressView.Items[i].SubItems[6].Text = machine.Fails.ToString() + "/" + machine.MaxFail.ToString();
                         progressView.Items[i].SubItems[7].Text = machine.Skipped.ToString();
@@ -668,6 +828,8 @@ namespace Foreman_GenIE
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
             cancelled = true;
+            opener.Show();
+            opener.Focus();
         }
     }
 }

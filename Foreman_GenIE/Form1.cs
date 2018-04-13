@@ -87,12 +87,14 @@ namespace Foreman_GenIE
             return dt;
         }
         private void envirCb_TextChanged(object sender, EventArgs e)
-        {
-            filterCb.Text = "";
+        { 
             if (envirCb.Text == "GENNFT" || envirCb.Text == "GENPREP" || envirCb.Text == "GENPROD" || envirCb.Text == "GENSYS")
             {
                 filterCb.Enabled = true;
-                filterCb.Text = "All";
+                if (filterCb.Text == "")
+                {
+                    filterCb.Text = "All";
+                }
 
                 if (filterCb.Text == "All" || filterCb.Text == "1Generalise DB" || filterCb.Text == "1Generalise" || filterCb.Text == "1Validate" || filterCb.Text == "Editor Framework" || filterCb.Text == "Publication") {
                     failTBar.Enabled = true;
@@ -102,7 +104,7 @@ namespace Foreman_GenIE
                     clearBtn.Enabled = true;
                     actionCb.Enabled = true;
                     runBtn.Enabled = true;
-
+                    filterCb_TextChanged(sender,e);
                     failLbl.Text = "Maximum Fails: " + failTBar.Value;  
                 }
                 else
@@ -133,7 +135,6 @@ namespace Foreman_GenIE
                 selectionList.Clear();
                 filterCb.Text = "";
             }
-            selectionList.Focus();
         }
 
         private void filterCb_TextChanged(object sender, EventArgs e)
@@ -201,7 +202,6 @@ namespace Foreman_GenIE
 
                 selectionList.Clear();
             }
-            selectionList.Focus();
         }
 
         private void failTBar_Scroll(object sender, EventArgs e)
@@ -422,8 +422,9 @@ namespace Foreman_GenIE
            
             if (n > 0)
             {
-                Form2 settingsForm = new Form2();
+                Form2 settingsForm = new Form2(this);
                 settingsForm.Show();
+                this.Hide();
             }
             else
             {
